@@ -23,6 +23,10 @@ export default function Cube({position = [0, 0, 0], onClick = () => {}, selected
 
             setSelect(id === selectedCube.id);
         }
+        else {
+            
+            setSelect(false);
+        }
 
     }, [selectedCube]);
 

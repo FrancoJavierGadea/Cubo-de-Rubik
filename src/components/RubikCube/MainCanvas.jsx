@@ -2,6 +2,7 @@ import { OrbitControls, Stars, Stats } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { useRef } from "react";
 import styled from "styled-components";
+import ShowControls from "../ShowControls/ShowControls";
 import RubikCube from "./RubikCube";
 
 const StyledRubikCube = styled.div`
@@ -35,6 +36,8 @@ function MainCanvas({width = 960, height = 540}) {
         </Canvas>
 
         <Stats className="position-absolute" parent={canvasConteinerRef} />
+
+        <ShowControls />
 
     </StyledRubikCube>);
 }

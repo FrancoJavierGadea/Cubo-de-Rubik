@@ -1,5 +1,5 @@
 
-export default function Stickers({scale = 0.9, size = 1, distance = 0.0001, all = true, sides = []}){
+export default function Stickers({scale = 0.9, size = 1, distance = 0.001, all = true, sides = []}){
 
     const position = (size / 2) + distance;
 

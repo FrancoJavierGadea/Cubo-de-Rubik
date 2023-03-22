@@ -15,11 +15,11 @@ function RubikCube({epsilon = 0.5}) {
     
     const [rotating, setRotating] = useState(false);
 
-    const cubesInSame = (coordinate = 'x') => {
+    const cubesInSame = (coordinate = 'x', targetCube = selectedCube?.cube) => {
 
         return RubikCubeRef.current?.children.filter(cube => {
 
-            const aux = Math.abs(cube.position[coordinate] - selectedCube.cube.position[coordinate]);
+            const aux = Math.abs(cube.position[coordinate] - targetCube.position[coordinate]);
 
             return aux < 0.5; 
         });
@@ -30,15 +30,19 @@ function RubikCube({epsilon = 0.5}) {
         setRotating(true);
 
         const from = {angle: 0};
-        const prev = {angle: 0};
         const end = {angle: Math.PI / 2};
 
         const tween = new TWEEN.Tween(from).to(end, 500)
-        .onStart(() => {
+        .onStart((value) => {
 
             console.log('Rotating');
+            value.prev = {
+                angle: 0
+            }
         })
-        .onUpdate(({angle}, elapsed) => {
+        .onUpdate((value, elapsed) => {
+
+            const {angle, prev} = value;
 
             cubes.forEach(cube => {
 
@@ -46,12 +50,84 @@ function RubikCube({epsilon = 0.5}) {
                 cube.rotateOnWorldAxis(axis, angle - prev.angle);
             });
 
-            prev.angle = angle;
+            value.prev.angle = angle;
         })
-        .onComplete(() => {
+        .onComplete((value) => {
 
             setRotating(false);
             console.log('complete');
+            value.prev.angle = 0;
+        });
+
+        tween.start();
+    }
+
+    const scramble = (moves = 10, time = 500) => {
+
+        if(!RubikCubeRef.current) return;
+
+        setRotating(true);
+
+        const tween = new Array(moves).fill(null)
+        .map((_, index) => {
+
+            return (new TWEEN.Tween({angle: 0}).to({angle: Math.PI / 2}, time)
+                .onStart((value) => {
+
+                    const cubes = RubikCubeRef.current.children;
+
+                    const randomCube = cubes[Math.floor(Math.random() * cubes.length )];
+
+                    const randomAxis = ([
+                        { cordinate: 'x', axis: new Vector3(1, 0, 0) },
+                        { cordinate: 'y', axis: new Vector3(0, 1, 0) },
+                        { cordinate: 'z', axis: new Vector3(0, 0, 1) },
+                    ])[Math.floor(Math.random() * 3)];
+
+                    value.layer = cubesInSame(randomAxis.cordinate, randomCube);
+                    value.axis = randomAxis.axis;
+
+                    console.log('Rotating');
+                    value.prev = {angle: 0};
+                })
+                .onUpdate((value, elapsed) => {
+
+                    const {angle, prev, layer, axis} = value;
+
+                    layer.forEach(cube => {
+
+                        cube.position.applyAxisAngle(axis, angle - prev.angle);
+                        cube.rotateOnWorldAxis(axis, angle - prev.angle);
+                    });
+
+                    value.prev.angle = angle;
+                })
+                .onComplete((value) => {
+
+                    //setRotating(false);
+                    console.log('complete');
+                    value.prev.angle = 0;
+                })
+            );
+        })
+        .reduce((acc, value, index, array) => {
+  
+            if(index === array.length - 1){
+
+                value.onComplete(() => {
+
+                    setRotating(false);
+                    console.log('complete end');
+                });
+
+                acc.chain(value);
+                
+                return array[0];
+            }
+
+            acc.chain(value);
+  
+            return value;
         });
 
         tween.start();
@@ -115,7 +191,12 @@ function RubikCube({epsilon = 0.5}) {
             case keys.current['ArrowRight']:
 
                 rotate(RubikCubeRef.current.children, new Vector3(0, 1, 0));
-                break;     
+                break;
+
+            case keys.current[' ']:
+
+                scramble(21, 300);
+                break;         
         }
     });
     
