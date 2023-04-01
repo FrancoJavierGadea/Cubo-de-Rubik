@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import KeyboardKey from "./Key";
 
 const StyledDiv = styled.div`
 
@@ -11,17 +12,7 @@ const StyledDiv = styled.div`
     box-shadow: 0px 0px 3px 0px #f7f1f1bf;
     user-select: none;
     
-    span {
-        display: inline-block;
-        box-sizing: border-box;
-        background-color: #000000;
-        padding: 5px 10px;
-        min-width: 40px;
-        border-radius: 2px;
-        text-align: center;
-        color: #d7d6d6;
-        box-shadow: 1px 1px 3px 0px #f7f1f1bf;
-    }
+    
 `;
 
 
@@ -32,23 +23,30 @@ function ShowControls() {
         <h4 className="pb-2">Select a piece and rotate the cube</h4>
 
         <h5>
-            <span>W</span> <span>S</span> : Rotate around X axis
+            <KeyboardKey keyChar={['W', 'w']}/>
+            <KeyboardKey keyChar={['S', 's']}/> : Rotate around X axis
         </h5>
 
         <h5>
-            <span>A</span> <span>D</span> : Rotate around Y axis
+            <KeyboardKey keyChar={['A', 'a']}/>
+            <KeyboardKey keyChar={['D', 'd']}/> : Rotate around Y axis
         </h5>
 
         <h5>
-            <span>Q</span> <span>E</span> : Rotate around Z axis
+            <KeyboardKey keyChar={['Q', 'q']}/>
+            <KeyboardKey keyChar={['E', 'e']}/> : Rotate around Z axis
         </h5>
 
         <h5>
-            <span>🡩</span> <span>🡫</span> <span>🡨</span> <span>🡪</span> : Rotate the cube
+            <KeyboardKey keyChar={['ArrowUp']} text="🡩"/>
+            <KeyboardKey keyChar={['ArrowDown']} text="🡫"/>
+            <KeyboardKey keyChar={['ArrowLeft']} text="🡨"/>
+            <KeyboardKey keyChar={['ArrowRight']} text="🡪"/>
+            : Rotate the cube
         </h5>
 
         <h5>
-            <span>Space</span> : Scramble
+            <KeyboardKey keyChar={[' ']} text="Space"/> : Scramble
         </h5>
     </StyledDiv>);
 }

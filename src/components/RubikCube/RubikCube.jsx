@@ -3,6 +3,7 @@ import TWEEN from "@tweenjs/tween.js";
 import { useEffect, useRef, useState } from "react";
 import { Vector3 } from "three";
 import { useKeyboard } from "../../hooks/useKeyboard";
+import { getRandomRotation } from "../../utils/getRandomRotation";
 import Cube from "./Cube";
 
 
@@ -36,11 +37,9 @@ function RubikCube({epsilon = 0.5}) {
         .onStart((value) => {
 
             console.log('Rotating');
-            value.prev = {
-                angle: 0
-            }
+            value.prev = {angle: 0}
         })
-        .onUpdate((value, elapsed) => {
+        .onUpdate((value) => {
 
             const {angle, prev} = value;
 
@@ -71,44 +70,40 @@ function RubikCube({epsilon = 0.5}) {
         const tween = new Array(moves).fill(null)
         .map((_, index) => {
 
-            return (new TWEEN.Tween({angle: 0}).to({angle: Math.PI / 2}, time)
-                .onStart((value) => {
+            const animation = new TWEEN.Tween({angle: 0}).to({angle: Math.PI / 2}, time)
+            .onStart((value) => {
 
-                    const cubes = RubikCubeRef.current.children;
+                const cubes = RubikCubeRef.current.children;
 
-                    const randomCube = cubes[Math.floor(Math.random() * cubes.length )];
+                const randomCube = cubes[Math.floor(Math.random() * cubes.length)];
 
-                    const randomAxis = ([
-                        { cordinate: 'x', axis: new Vector3(1, 0, 0) },
-                        { cordinate: 'y', axis: new Vector3(0, 1, 0) },
-                        { cordinate: 'z', axis: new Vector3(0, 0, 1) },
-                    ])[Math.floor(Math.random() * 3)];
+                const rotation = getRandomRotation();
 
-                    value.layer = cubesInSame(randomAxis.cordinate, randomCube);
-                    value.axis = randomAxis.axis;
+                value.layer = cubesInSame(rotation.cordinate, randomCube);
+                value.axis = rotation.axis;
 
-                    console.log('Rotating');
-                    value.prev = {angle: 0};
-                })
-                .onUpdate((value, elapsed) => {
+                console.log('Rotating: ', index);
+                value.prev = {angle: 0};
+            })
+            .onUpdate((value) => {
 
-                    const {angle, prev, layer, axis} = value;
+                const {angle, prev, layer, axis} = value;
 
-                    layer.forEach(cube => {
+                layer.forEach(cube => {
 
-                        cube.position.applyAxisAngle(axis, angle - prev.angle);
-                        cube.rotateOnWorldAxis(axis, angle - prev.angle);
-                    });
+                    cube.position.applyAxisAngle(axis, angle - prev.angle);
+                    cube.rotateOnWorldAxis(axis, angle - prev.angle);
+                });
 
-                    value.prev.angle = angle;
-                })
-                .onComplete((value) => {
+                value.prev.angle = angle;
+            })
+            .onComplete((value) => {
 
-                    //setRotating(false);
-                    console.log('complete');
-                    value.prev.angle = 0;
-                })
-            );
+                console.log('complete: ', index);
+                value.prev.angle = 0;
+            });
+
+            return animation;
         })
         .reduce((acc, value, index, array) => {
   
